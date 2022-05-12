@@ -19,7 +19,7 @@ public class DataProducto {
 			
 			try {
 				stmt= DataBase.getInstancia().getConn().createStatement();
-				rs= stmt.executeQuery("select id, nombre, price from product");
+				rs= stmt.executeQuery("select id, nombre, price ,disabledOn from product");
 				//intencionalmente no se recupera la password
 				if(rs!=null) {
 					while(rs.next()) {
@@ -27,6 +27,7 @@ public class DataProducto {
 						p.setId(rs.getInt("id"));
 						p.setName(rs.getString("nombre"));
 						p.setPrice(rs.getDouble("price"));
+						p.setDate(rs.getDate("disabledOn"));
 						productos.add(p);
 					}
 				}
@@ -54,7 +55,7 @@ public class DataProducto {
 			ResultSet rs=null;
 			try {
 				stmt=DataBase.getInstancia().getConn().prepareStatement
-						("select id,nombre,descripcion,price,stock,shippingincluded from product where id=?"
+						("select id, nombre,price,stock, disabledOn from product where id=?"
 						);
 				stmt.setInt(1, id);
 				rs=stmt.executeQuery();
@@ -63,9 +64,10 @@ public class DataProducto {
 					p.setId(rs.getInt("id"));
 					p.setName(rs.getString("nombre"));
 					p.setPrice(rs.getDouble("price"));
-					p.setShippingIncluded(rs.getBoolean("shippingIncluded"));
-					//
+					p.setDate(rs.getDate("disabledOn"));
+			
 				}
+			
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}finally {
@@ -86,12 +88,9 @@ public class DataProducto {
 		try {
 			stmt=DataBase.getInstancia().getConn().prepareStatement("delete from product where id=?");
 			stmt.setInt(1,id);
-			boolean elimino=stmt.execute();
-			if(elimino) {
-			
-			System.out.println("Se elimino correctamente");	
-			}
-			else System.out.println("No se elimino");
+			stmt.executeUpdate();
+				
+	
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}finally {
@@ -110,7 +109,7 @@ public class DataProducto {
 			try {
 				stmt=DataBase.getInstancia().getConn().
 						prepareStatement(
-								"insert into product(nombre,descripcion,price,stock,shippingincluded) values(?,?,?,?,?)",
+								"insert into product(nombre,descripcion,price,stock,shippingincluded,disabledOn) values(?,?,?,?,?,CURDATE())",
 								PreparedStatement.RETURN_GENERATED_KEYS
 								);
 				stmt.setString(1, p.getName());
@@ -118,12 +117,12 @@ public class DataProducto {
 				stmt.setString(2, p.getDescripcion());
 				stmt.setInt(4, p.getStock());
 				stmt.setBoolean(5, p.isShippingIncluded());
-				Integer i=stmt.executeUpdate();
+				stmt.executeUpdate();
 				
 				keyResultSet=stmt.getGeneratedKeys();
 	            if(keyResultSet!=null && keyResultSet.next()){
 	                p.setId(keyResultSet.getInt(1)); //Preguntar porque no se puede usar el id
-	                verifica(i);
+	              
 	            }
 
 				
@@ -142,44 +141,13 @@ public class DataProducto {
 	    }
 	
 		public Product actualizar(Product p) {
-//			Product p= new Product();
-			PreparedStatement stmt= null;
-//			ResultSet rs=null;
-			
-			
-//			try {
-//				stmt= DataBase.getInstancia().getConn().prepareStatement("select * from product where id=?");
-//				stmt.setInt(1,id);
-//				rs= stmt.executeQuery();
-//				if(rs!=null && rs.next()) {
-//					p.setId(rs.getInt("id"));
-//					p.setName(rs.getString("nombre"));
-//					p.setDescripcion(rs.getString("descripcion"));
-//					p.setPrice(rs.getDouble("price"));
-//					p.setStock(rs.getInt("stock"));
-//					p.setShippingIncluded(rs.getBoolean("shippingIncluded"));
-//					System.out.println(p.toString2());
-//				
-//				}
-//				else System.out.println("No se encontro id");
-//			}
-//			catch (SQLException e) {
-//            e.printStackTrace();
-//		} finally {
-//            try {
-//                if(rs!=null)rs.close();
-//                if(stmt!=null)stmt.close();
-//                DataBase.getInstancia().releaseConn();
-//            } catch (SQLException e) {
-//            	e.printStackTrace();
-//            }
-//		}	
+			PreparedStatement stmt= null;	
 
-			
 			try {
+	
 				stmt=DataBase.getInstancia().getConn().
 						prepareStatement(
-								"update product set nombre=?,descripcion=?,price=?,stock=?,shippingincluded=? where id=?"
+								"update product set nombre=?,descripcion=?,price=?,stock=?,shippingincluded=?,disabledOn=CURDATE() where id=?"
 								
 								);
 				stmt.setInt(6, p.getId());
@@ -188,9 +156,9 @@ public class DataProducto {
 				stmt.setDouble(3, p.getPrice());
 				stmt.setInt(4, p.getStock());
 				stmt.setBoolean(5, p.isShippingIncluded());
-				Integer i=stmt.executeUpdate();
+				stmt.executeUpdate();
 				 
-				verifica(i);
+				
 				
 	           
 				
@@ -208,11 +176,6 @@ public class DataProducto {
 	            }
 			}
 			return p;
-		}
-		public void verifica(Integer i) {
-			Menu2 m=new Menu2();
-			if(i==1)
-			m.actualizo();
 		}
 		
 		

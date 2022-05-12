@@ -31,21 +31,24 @@ import entities.*;
 				JOptionPane.showMessageDialog(null,"Lista de productos"+dp.getAll());
 				break;
 			case 1:
-				JOptionPane.showMessageDialog(null, "Encuentra un producto"+ dp.getByID(ingresoID()));	
+				p= dp.getByID(ingresoID());
+				if (p != null)
+				JOptionPane.showMessageDialog(null, "Encuentra un producto  "+ p.toString2());
+				else 
+				JOptionPane.showMessageDialog(null,"No se encontro el producto","Alerta",JOptionPane.WARNING_MESSAGE);   
 				break;
 			case 2:
+				p=null;
 				 p=dp.add(nuevoProd());
-				 if(actualizo())
+				 if (!(p==null))
 				 JOptionPane.showMessageDialog(null,"El producto se cargo con exito \n"+p.toString2());
-				 else JOptionPane.showMessageDialog(null,"El producto NO se cargo con exito"); 
+				 else JOptionPane.showMessageDialog(null,"No se cargo el producto","Alerta",JOptionPane.WARNING_MESSAGE);
 				break;
 			case 3:
+				
 				 p= dp.getByID(ingresoID());
 				JOptionPane.showMessageDialog(null,"El producto a actualizar es:: \n"+p.toString2());
 				dp.actualizar(updateProd(p));
-				if(actualizo())
-				JOptionPane.showMessageDialog(null,"El producto se actualizo con exito:: \n"+p.toString2());
-				else JOptionPane.showMessageDialog(null,"El producto no se pudo actualizar");
 				break;
 			case 4:
 				dp.delete(ingresoID());
@@ -57,7 +60,6 @@ import entities.*;
 
 		
 		private Integer ingresoID() {
-			System.out.print("ID: ");
 			Integer id=(Integer.parseInt(JOptionPane.showInputDialog("Ingrese ID")));
 			return id ;
 			
@@ -86,9 +88,8 @@ import entities.*;
 		
 		return p;
 	}
-	public boolean actualizo() {
-		return true;
+
 		
 	}
 
-	}
+	

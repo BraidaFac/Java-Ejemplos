@@ -82,7 +82,7 @@ import entities.*;
 			boolean shippingIncluded=s.nextLine().equalsIgnoreCase("si");
 				
 			System.out.println();
-			Product p=new Product(nombre,descripcion,precio,stock,shippingIncluded);
+			Product p=new Product();
 			return p;
 		}
 	public  Product updateProd(Product p) {
