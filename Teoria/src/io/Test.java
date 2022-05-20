@@ -15,11 +15,9 @@ public class Test {
 		Auto[] losAutos= {auto1,auto2};
 		
 	Sort.ordenaLista(losAutos);
-	System.out.println(losAutos);
-//	for(int i =0; i<losAutos.length; i++) {
-//		System.out.println(losAutos[i]);
-//	}
-
+	for(int i =0; i<losAutos.length; i++) {
+	System.out.println(losAutos[i]);	}
+	
 	 
 	}
 

@@ -1,16 +1,19 @@
 package db;
 import entities.*;
-import io.Menu;
-import io.Menu2;
-
 import java.sql.*;
 import java.util.LinkedList;
-import java.util.Scanner;
 
-import javax.swing.JOptionPane;
+import com.mysql.cj.MysqlType;
+
+import java.time.*;
+
+
 
 public class DataProducto {
-		
+//		private void DataTimeFormatter() {
+//			// TODO Auto-generated method stub
+//
+//		} Pasa de un tipo fecha a base de dato; AVERIGUAR
 		public LinkedList<Product> getAll(){
 			
 			Statement stmt=null;
@@ -19,18 +22,35 @@ public class DataProducto {
 			
 			try {
 				stmt= DataBase.getInstancia().getConn().createStatement();
-				rs= stmt.executeQuery("select id, nombre, price ,disabledOn from product");
+				rs= stmt.executeQuery("select * from product");
 				//intencionalmente no se recupera la password
-				if(rs!=null) {
-					while(rs.next()) {
+				
+					while(rs.next()&rs!=null) {
 						Product p=new Product();
 						p.setId(rs.getInt("id"));
 						p.setName(rs.getString("nombre"));
 						p.setPrice(rs.getDouble("price"));
-						p.setDate(rs.getDate("disabledOn"));
+//						si traemos de la DB un registro que tenga null el campo disabledOn
+						// va a tirar la excepcion NullPointerExcepcion ya que disabledOn esta null 
+						//y le mandamos a null el metodo .tolocalDataTime..
+//						p.setDisabledOn(rs.getTimestamp("disabledOn").toLocalDateTime());
+//						p.setDisabledDate(rs.getDate("disabledDate").toLocalDate());
+//						p.setDisabledTime(rs.getTime("disabledTime").toLocalTime());
+						// una solucion es::
+//						Timestamp t= rs.getTimestamp("disabledOn");
+//						LocalDateTime dt= null;
+////						p.setDisabledOn(t==null?null:t.toLocalDateTime());//operador ternario resultado = (condicion)?valor1:valor2;
+//						if(t!=null) {
+//							dt=t.toLocalDateTime();
+//						}
+//						p.setDisabledOn(dt);
+						//LA SOLUCION MAS ADECUADA ES:::
+						p.setDisabledOn(rs.getObject("disabledOn", LocalDateTime.class));// es una sobrecarga del metodo getObject, que le pasaas el nombre de la columna y a la clase que tiene que castear el objeto.
+						p.setDisabledDate(rs.getObject("disabledDate", LocalDate.class));
+						p.setDisabledTime(rs.getObject("disabledTime", LocalTime.class));
+						p.setDisabledOnZoned(rs.getObject("disabledOnZoneDataTime", ZonedDateTime.class));
 						productos.add(p);
 					}
-				}
 				
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -49,27 +69,36 @@ public class DataProducto {
 			return productos;
 		}
 		
-		public Product getByID(Integer id) {
-			Product p=null;
+		public Product getByID(Product prod) {
+			
 			PreparedStatement stmt=null;
 			ResultSet rs=null;
 			try {
+				Product p=null;
 				stmt=DataBase.getInstancia().getConn().prepareStatement
-						("select id, nombre,price,stock, disabledOn from product where id=?"
+						("select * from product where id=?"
 						);
-				stmt.setInt(1, id);
+				stmt.setInt(1, prod.getId());
 				rs=stmt.executeQuery();
 				if(rs!=null && rs.next()) {
+					//MAPEAR
 					p=new Product();
 					p.setId(rs.getInt("id"));
 					p.setName(rs.getString("nombre"));
 					p.setPrice(rs.getDouble("price"));
-					p.setDate(rs.getDate("disabledOn"));
-			
+//					p.setDisabledOn(rs.getTimestamp("disabledOn").toLocalDateTime());
+//					p.setDisabledDate(rs.getDate("disabledDate").toLocalDate());
+//					p.setDisabledTime(rs.getTime("disabledTime").toLocalTime());
+					p.setDisabledOn(rs.getObject("disabledOn",LocalDateTime.class));//esto no es un casteo sino un parseo. hay diferencia
+					p.setDisabledDate(rs.getObject("disabledDate", LocalDate.class));
+					p.setDisabledTime(rs.getObject("disabledTime", LocalTime.class));
+					p.setDisabledOnZoned(rs.getObject("disabledOnZoneDataTime", ZonedDateTime.class));
 				}
+				return p;
 			
 			} catch (SQLException e) {
 				e.printStackTrace();
+				return null;
 			}finally {
 				try {
 					if(rs!=null) {rs.close();}
@@ -80,14 +109,13 @@ public class DataProducto {
 				}
 			}
 			
-			return p;
 		}
 		
-		public void delete(Integer id) {
+		public void delete(Product p) {
 			PreparedStatement stmt= null;
 		try {
 			stmt=DataBase.getInstancia().getConn().prepareStatement("delete from product where id=?");
-			stmt.setInt(1,id);
+			stmt.setInt(1,p.getId());
 			stmt.executeUpdate();
 				
 	
@@ -109,7 +137,7 @@ public class DataProducto {
 			try {
 				stmt=DataBase.getInstancia().getConn().
 						prepareStatement(
-								"insert into product(nombre,descripcion,price,stock,shippingincluded,disabledOn) values(?,?,?,?,?,CURDATE())",
+								"insert into product(nombre,descripcion,price,stock,shippingincluded,disabledOn,disabledDate, disabledTime,disabledOnZoneDataTime) values(?,?,?,?,?,?,?,?,?)",
 								PreparedStatement.RETURN_GENERATED_KEYS
 								);
 				stmt.setString(1, p.getName());
@@ -117,6 +145,10 @@ public class DataProducto {
 				stmt.setString(2, p.getDescripcion());
 				stmt.setInt(4, p.getStock());
 				stmt.setBoolean(5, p.isShippingIncluded());
+				stmt.setObject(6, p.getDisabledOn());
+				stmt.setObject(7, p.getDisabledDate());
+				stmt.setObject(8 , p.getDisabledTime());
+				stmt.setObject(9, p.getDisabledOnZoned());
 				stmt.executeUpdate();
 				
 				keyResultSet=stmt.getGeneratedKeys();
@@ -147,7 +179,9 @@ public class DataProducto {
 	
 				stmt=DataBase.getInstancia().getConn().
 						prepareStatement(
-								"update product set nombre=?,descripcion=?,price=?,stock=?,shippingincluded=?,disabledOn=CURDATE() where id=?"
+								"update product "
+								+ "set nombre=?,descripcion=?,price=?,stock=?,shippingincluded=?,disabledOn, disabledDate, disabledTime,disabledOnZoneDataTime "
+								+ "where id=?"
 								
 								);
 				stmt.setInt(6, p.getId());
@@ -156,6 +190,12 @@ public class DataProducto {
 				stmt.setDouble(3, p.getPrice());
 				stmt.setInt(4, p.getStock());
 				stmt.setBoolean(5, p.isShippingIncluded());
+				//se puede especificar el tipo de dato si no funciona
+//				stmt.setObject(6, p.getDisabledOn(),MysqlType.DATETIME);
+				stmt.setObject(6, p.getDisabledOn());
+				stmt.setObject(7, p.getDisabledDate());
+				stmt.setObject(8, p.getDisabledTime());
+				stmt.setObject(9, p.getDisabledOnZoned());
 				stmt.executeUpdate();
 				 
 				

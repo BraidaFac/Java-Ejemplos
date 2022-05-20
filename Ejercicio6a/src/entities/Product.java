@@ -1,23 +1,53 @@
 package entities;
 
-import java.sql.Date;
+//import java.util.Date; // NO ES MUY UTIL.
+//import java.time.LocalDate;//AVERIGUAR
+//import java.time.LocalTime;//AVERIGUAR
+//import java.time.LocalDateTime;//AVERIGUAR
+import java.time.*;
+import java.time.ZonedDateTime;//AVERIGUAR
+import java.time.format.DateTimeFormatter;
 
 public class Product {
+	final private String dateFormat="dd/MM/yyyy";
+	final private String timeFormat="HH:mm:ss";
+	final private String dateTimeFormat=dateFormat+" "+timeFormat;
 	private int id;
 	private String name;
 	private String descripcion;
 	private double price;
 	private int stock;
 	private boolean shippingIncluded;
-	private Date disabledOn;
-	
+	private LocalDateTime disabledOn;
+	private LocalDate disabledDate;
+	private LocalTime disabledTime;
+	private ZonedDateTime disabledOnZoned;
+
 	
 	//GETTERS AND SETTER
-	public Date getDate() {
+	public LocalDateTime getDisabledOn() {
 		return disabledOn;
 	}
-	public void setDate(Date disabledOn) {
-		this.disabledOn=disabledOn;
+	public void setDisabledOn(LocalDateTime disabledOn) {
+		this.disabledOn = disabledOn;
+	}
+	public LocalDate getDisabledDate() {
+		return disabledDate;
+	}
+	public void setDisabledDate(LocalDate disabledDate) {
+		this.disabledDate = disabledDate;
+	}
+	public LocalTime getDisabledTime() {
+		return disabledTime;
+	}
+	public void setDisabledTime(LocalTime disabledTime) {
+		this.disabledTime = disabledTime;
+	}
+	public ZonedDateTime getDisabledOnZoned() {
+		return disabledOnZoned;
+	}
+	public void setDisabledOnZoned(ZonedDateTime disabledOnZoned) {
+		this.disabledOnZoned = disabledOnZoned;
 	}
 	public int getId() {
 		return id;
@@ -73,8 +103,25 @@ public class Product {
 	
 	
 @Override
-	public String	toString() {
-	return "\n Producto:: [id:: " + id+ " Nombre:: "+ name+ " Precio:: $"+price+" Fecha:: "+ disabledOn+"]";
+public String toString() {
+	DateTimeFormatter dtFormat =DateTimeFormatter.ofPattern(dateTimeFormat);
+	DateTimeFormatter tFormat= DateTimeFormatter.ofPattern(timeFormat);
+	DateTimeFormatter dFormat= DateTimeFormatter.ofPattern(dateFormat);
+	return "\n Product [id=" + id + ", name=" + name + ", descripcion=" + descripcion + ", price=" + price
+			+ ", stock=" + stock+ ", shippingIncluded=" + shippingIncluded
+			+ ", disabledOn=" + (disabledOn==null?null:disabledOn.format(dtFormat))
+			+ ", disabledDate=" + (disabledDate==null?null:disabledDate.format(dFormat))
+			+ ", disabledTime=" + (disabledTime==null?null:disabledTime.format(tFormat))+
+			"disabledOnZoneD "+ (disabledOnZoned==null?null: disabledOnZoned.format(dtFormat.withZone(ZoneId.of("UTC-3"))))+"\n";
+//	DateTimeFormatter dtFormat = .ofPattern(dateTimeFormat);
+//	DateTimeFormatter dFormat = DateTimeFormatter.ofPattern(dateFormat);
+//	DateTimeFormatter tFormat = DateTimeFormatter.ofPattern(timeFormat);
+//return "Product [id=" + id + ", name=" + name + ", descripcion=" + descripcion + ", price=" + price
+//		+ ", stock=" + stock+ ", shippingIncluded=" + shippingIncluded
+//		+ ", disabledOn=" + (disabledOn==null?null:disabledOn.format(dtFormat))
+//		+ ", disabledDate=" + (disabledDate==null?null:disabledDate.format(dFormat))
+//		+ ", disabledTime=" + (disabledTime==null?null:disabledTime.format(tFormat))
+//		+ ", disabledOnZoned=" + (disabledOnZoned==null?null:disabledOnZoned.format(dtFormat.withZone(ZoneId.of("UTC"))))+ "]\n";
 }
 public String	toString2() {
 	return "\n Producto:: [id:: " + id+ " Nombre:: "+ name+" descripcion:: "+descripcion +" precio:: $"+price+" stock:: "+ stock+" Incluye envio:: "+ shippingIncluded+"Fecha carga"+ disabledOn+"]";

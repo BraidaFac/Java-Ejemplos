@@ -2,12 +2,8 @@ package db;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.LinkedList;
 
-import entities.Product;
 
 
 	public class DataBase {
@@ -18,6 +14,8 @@ import entities.Product;
 		private String host="localhost";
 		private String port="3306";
 		private String user="java";
+		private String option="?useLegacyDatetimeCode=false&serverTimezone=Asia/Hong_Kong";
+		private String opcion="";
 		private String password="himitsu";
 		private String db="javaMarket";
 		private int conectados=0;
@@ -41,7 +39,7 @@ import entities.Product;
 		public Connection getConn() {
 			try {
 				if(conn==null || conn.isClosed()) {
-					conn=DriverManager.getConnection("jdbc:mysql://"+host+":"+port+"/"+db, user, password);
+					conn=DriverManager.getConnection("jdbc:mysql://"+host+":"+port+"/"+db+option, user, password);
 					conectados=0;
 				}
 			} catch (SQLException e) {
