@@ -1,0 +1,42 @@
+// EL % AL CREAR UNA DB ES PARA QUE EL USUARIO SE PUEDA CONECTAR DESDE CUALQUEIR LADO.
+create user java@'%' identified by 'himitsu';
+use javamarket;
+grant select, insert, update, delete on javaMarket.* to java@'%';
+insert into product values (
+1, 'pala','pala ancha',15.0,10, true, '2022-05-15T17:22:00','2022-05-15','17:22:00');
+
+insert into product values (
+2, 'escoba','escoba economica',15.0,10, true, '2022-05-15T17:32:00','2022-05-15','17:32:00');
+
+update product
+set nombre='escoba roja'
+where id=2;
+
+delete from product where id=2;
+Drop Table if exists CLIENTES;
+CREATE TABLE CLIENTES 
+(idCliente int not null,
+Nombre varchar(255) not null,
+Apellido varchar(255) not null,
+id int (10) unsigned not null ,
+PRIMARY KEY (idCliente),
+FOREIGN KEY(id) REFERENCES product(id) ON DELETE CASCADE ON UPDATE CASCADE
+)ENGINE= InnoDb DEFAULT CHARSET=utf8mb4
+ ;
+ 
+ SELECT  nombre FROM product WHERE id = 105 or 1=1;
+SELECT * FROM javamarket.clientes;
+SELECT * FROM clientes INNER JOIN product ON clientes.id=product.id;
+SELECT * FROM clientes JOIN product ON clientes.id=producto.id ;
+SELECT C.nombreCli, C.apellido , B.id,B.descripcion, B.price,B.disabledOn
+FROM clientes AS C, product AS B 
+WHERE C.id = B.id   
+AND B.price> 15;
+
+SELECT * FROM javamarket.clientes;
+alter table `clientes`
+change column `NombreCli`  `nombre` varchar(255) not null;
+
+select product.nombre as nombreProducto, clientes.nombre AS nombreClientes, idCliente, product.id, stock from
+product INNER JOIN clientes
+ON product.id=clientes.id;

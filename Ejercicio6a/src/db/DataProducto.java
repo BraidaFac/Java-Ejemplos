@@ -25,7 +25,7 @@ public class DataProducto {
 				rs= stmt.executeQuery("select * from product");
 				//intencionalmente no se recupera la password
 				
-					while(rs.next()&rs!=null) {
+					while(rs.next()&&rs!=null) {
 						Product p=new Product();
 						p.setId(rs.getInt("id"));
 						p.setName(rs.getString("nombre"));
@@ -180,7 +180,7 @@ public class DataProducto {
 				stmt=DataBase.getInstancia().getConn().
 						prepareStatement(
 								"update product "
-								+ "set nombre=?,descripcion=?,price=?,stock=?,shippingincluded=?,disabledOn, disabledDate, disabledTime,disabledOnZoneDataTime "
+								+ "set nombre=?,descripcion=?,price=?,stock=?,shippingincluded=?,disabledOn=?, disabledDate=?, disabledTime=?,disabledOnZoneDataTime =?"
 								+ "where id=?"
 								
 								);
