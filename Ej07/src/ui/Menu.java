@@ -2,7 +2,9 @@ package ui;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
+import java.io.*;
 
 import entities.*;
 import logic.Login;
@@ -34,10 +36,19 @@ public class Menu {
 			System.out.println(ctrlLogin.getAll());
 			break;
 		case "find":
-			System.out.println(find());
+			Persona p= find();
+			if(p!=null) {
+			System.out.println(p);
+			System.out.println("Desea ver los roles? YES/NO");
+			boolean b= s.nextLine().trim().equalsIgnoreCase("YES");
+			if(b) seeRoles(p);}
+			else System.out.println("No se encontro");
 			break;
 		case "search":
-			System.out.println(search());
+			ArrayList <Persona> lista= search();
+			if(! lista.isEmpty())
+			System.out.println(lista);
+			else System.out.println("No se encontraron datos");
 			break;
 		case "new":
 			System.out.println(newPersona());
@@ -72,12 +83,12 @@ public class Menu {
 		
 		System.out.print("Email: ");
 		p.setEmail(s.nextLine());
-
+		
 		System.out.print("password: ");
 		p.setPassword(s.nextLine());
-		
 		p=ctrlLogin.validate(p);
 		
+
 		return p;
 		
 	}
@@ -89,7 +100,7 @@ public class Menu {
 		p.setDocumento(d);
 		System.out.print("Tipo doc: ");
 		d.setTipo(s.nextLine());
-
+		
 		System.out.print("Nro doc: ");
 		d.setNro(s.nextLine());
 		
@@ -109,9 +120,9 @@ public class Menu {
 		Persona p = new Persona();
 		loadDoc(p);
 		loadData(p);
-		Rol r= loadRol(p);
+		loadRol(p);
 		
-		return ctrlLogin.newPersona(p,r);	
+		return ctrlLogin.newPersona(p);	
 	}
 	
 	private Persona edit() 
@@ -119,7 +130,15 @@ public class Menu {
 		Persona p=new Persona();
 		p= find();
 		System.out.println(p);
+		loadDoc(p);
 		loadData(p);
+		
+		
+		System.out.println("Desea editar roles? YES/NO ");
+		boolean b= s.nextLine().trim().equalsIgnoreCase("YES");
+		if (b) {
+			editRoles(p);
+		}
 		ctrlLogin.edit(p);
 		return p;
 	}
@@ -162,17 +181,40 @@ public class Menu {
 	}
 	
 
-	private Rol loadRol(Persona p) 
+	private void loadRol(Persona p) 
 	{	
 		Rol r = new Rol();
+		boolean exit;
+//		ArrayList<Rol> roles= new ArrayList<>();
+		do {
 		System.out.println(ctrlLogin.getAllRoles());
 		System.out.println("Ingrese descripcion del rol");
 		r.setDescripcion(s.nextLine());
 		r= ctrlLogin.getRolByDesc(r);
 		p.addRol(r);
-		return r;
-			
+		System.out.println("Desea cargar otro rol YES/NO?");
+		exit= s.nextLine().trim().equalsIgnoreCase("YES");
+		}
+		while (exit);
+		}
+	private void seeRoles(Persona p) {
+		HashMap<Integer, Rol> roles = p.getHashMap();
+		for( Integer key: roles.keySet()) {
+			System.out.println(roles.get(key));
+		}
+	}
+	private void editRoles(Persona p) {
+		System.out.println("Los roles actuales son::");
+		seeRoles(p);
+		ctrlLogin.deleteRoles(p);
+		p.removeAllRol();
+		System.out.println("Se eliminaron los roles, se comenzara la carga en instantes..");
+		loadRol(p);
+		ctrlLogin.addRoles(p);
+	}
+	
+
 	}
 
 
-}
+

@@ -1,10 +1,13 @@
 package data;
-//orig
+
 import entities.*;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import java.util.LinkedList;
+
 
 public class DataPersona {
 	
@@ -182,7 +185,7 @@ public class DataPersona {
 		return personas;
 	}
 	
-	public Persona add(Persona p, Rol r) {
+	public Persona add(Persona p) {
 		PreparedStatement stmt= null;
 		ResultSet keyResultSet=null;
 		try {
@@ -207,10 +210,7 @@ public class DataPersona {
             if(keyResultSet!=null && keyResultSet.next()){
                 p.setId(keyResultSet.getInt(1));
                 stmt.close();
-            stmt=DbConnector.getInstancia().getConn().prepareStatement("insert into rol_persona(id_persona, id_rol) values(?,?)");
-            stmt.setInt(1, p.getId());
-            stmt.setInt(2, r.getId());
-    		stmt.executeUpdate();      //PREGUNTAR MEJORES PRACTICAS
+              //PREGUNTAR MEJORES PRACTICAS
             
                 
             }
@@ -254,8 +254,8 @@ public class DataPersona {
 			try {				
 				stmt=DbConnector.getInstancia().getConn().
 						prepareStatement(
-								"update persona set nombre=?, apellido=?, email=? ,password=?, tel=? ,habilitado=? where tipo_doc=? AND nro_doc=?");
-				
+								"update persona set nombre=?, apellido=?, email=? ,password=?, tel=? ,habilitado=? ,tipo_doc=?,nro_doc=? where  id=?");
+				stmt.setInt(9, p.getId());
 				stmt.setString(1, p.getNombre());
 				stmt.setString(2, p.getApellido());
 				stmt.setString(3, p.getEmail());
@@ -279,7 +279,7 @@ public class DataPersona {
 		}
 		public void delete(Persona p) {
 			PreparedStatement stmt=null;
-//			PreparedStatement stmt1=null;
+
 			try {
 				//"delete persona.*, rol_persona.* from persona INNER JOIN rol_persona  on  persona.id = rol_persona.id_persona where tipo_doc=? AND nro_doc=?"
 				stmt=DbConnector.getInstancia().getConn().prepareStatement("delete from persona where tipo_doc=? AND nro_doc=?");
@@ -306,6 +306,63 @@ public class DataPersona {
 				
 			
 										}
+		public void addRoles(Persona p) {
+			PreparedStatement stmt= null;
+			HashMap<Integer, Rol> roles = p.getHashMap();
+	            
+			try { 
+				for (Integer key : roles.keySet()) {
+			
+	            stmt=DbConnector.getInstancia().getConn().prepareStatement("insert into rol_persona(id_persona, id_rol) values(?,?)");
+	            stmt.setInt(1, p.getId());
+	            stmt.setInt(2, key);
+	    		stmt.executeUpdate(); 
+		
+					}
+			}
+			catch(SQLException e) {
+				e.printStackTrace();
+				
+			}
+			finally {
+				try {
+//					if(stmt1!=null)stmt1.close();
+					if(stmt != null) stmt.close();
+					DbConnector.getInstancia().releaseConn();
+				}
+				catch(SQLException e) {
+				e.printStackTrace();
+			
+		}
+				}}
+
+		public void deleteRoles(Persona p) {
+		
+			PreparedStatement stmt= null;
+		
+			try { 
+				stmt= DbConnector.getInstancia().getConn().prepareStatement(
+						"delete from rol_persona where id_persona=?");
+				stmt.setInt(1, p.getId());
+				stmt.executeUpdate();
+				 
+			}
+			catch(SQLException e) {
+				e.printStackTrace();
+				
+			}
+			finally {
+				try {
+
+					if(stmt != null) stmt.close();
+					DbConnector.getInstancia().releaseConn();
+				}
+				catch(SQLException e) {
+				e.printStackTrace();
+										}
+			}
+		}
+		
 					
 	}
 	

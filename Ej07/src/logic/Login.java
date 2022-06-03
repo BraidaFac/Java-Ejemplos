@@ -1,11 +1,13 @@
 package logic;
 
+import java.security.*;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
 import data.*;
 import entities.*;
-import ui.Menu;
+
 
 public class Login {
 	private DataPersona dp;
@@ -17,10 +19,8 @@ public class Login {
 	}
 	
 	public Persona validate(Persona p) {
-		/* para hacer más seguro el manejo de passwords este sería un lugar 
-		 * adecuado para generar un hash de la password utilizando un cifrado
-		 * asimétrico como sha256 y utilizar el hash en lugar de la password en plano 
-		 */
+
+		p.setPassword(convertirSHA256(p.getPassword()));
 		return dp.getByUser(p);
 	}
 
@@ -36,9 +36,12 @@ public class Login {
 	public ArrayList<Persona> getByApellido(Persona p){
 		return dp.getByApellido(p);
 	}
-	public Persona newPersona(Persona per, Rol r)
-	{
-		return dp.add(per,r);
+	public Persona newPersona(Persona per)
+	{	
+		per.setPassword(convertirSHA256(per.getPassword()));
+		per= dp.add(per);
+		dp.addRoles(per);
+		return per;
 		
 	}
 	
@@ -57,5 +60,31 @@ public class Login {
 	}
 	public void delete(Persona p) {
 		dp.delete(p);
+	}
+
+	public void deleteRoles(Persona p) {
+		
+		dp.deleteRoles(p);
+		
+	}
+	public void addRoles(Persona p) {
+		dp.addRoles(p);
+	}
+	public String convertirSHA256(String password) {
+		MessageDigest md= null;
+		try {
+			md= MessageDigest.getInstance("SHA-256");
+		}
+		catch(NoSuchAlgorithmException e) {
+		 	e.printStackTrace();
+		}
+		
+		byte[] hash =md.digest(password.getBytes());
+		StringBuffer sb= new StringBuffer();
+		
+		for(byte b: hash) {
+			sb.append(String.format("%02x", b));
+		}
+	return sb.toString();
 	}
 }

@@ -69,9 +69,15 @@ public class Persona {
 	public void addRol(Rol rolToBeAdded) {
 		this.roles.put(rolToBeAdded.getId(), rolToBeAdded);
 	}
+	public HashMap<Integer, Rol> getHashMap(){
+		return  roles;
+	}
 	
 	public void removeRol(Rol rolToBeRemoved) {
 		this.roles.remove(rolToBeRemoved.getId());
+	}
+	public void removeAllRol() {
+		this.roles.clear();
 	}
 	
 	public boolean hasRol(Rol rolToCheck) {
