@@ -279,11 +279,14 @@ public class DataPersona {
 		}
 		public void delete(Persona p) {
 			PreparedStatement stmt=null;
+//			PreparedStatement stmt1=null;
 			try {
-				stmt=DbConnector.getInstancia().getConn().prepareStatement("delete persona.*, rol_persona.* from persona INNER JOIN rol_persona  on  persona.id = rol_persona.id_persona where tipo_doc=? AND nro_doc=?");
-				// delete from persona where tipo_doc='dni' AND nro_doc ='3881460';
+				//"delete persona.*, rol_persona.* from persona INNER JOIN rol_persona  on  persona.id = rol_persona.id_persona where tipo_doc=? AND nro_doc=?"
+				stmt=DbConnector.getInstancia().getConn().prepareStatement("delete from persona where tipo_doc=? AND nro_doc=?");
+//				stmt1=DbConnector.getInstancia().getConn().prepareStatement("delete from rol_persona where id_persona= ?");
 				stmt.setString(1, p.getDocumento().getTipo());
 				stmt.setString(2, p.getDocumento().getNro());
+//				stmt1.setInt(1, p.getId());
 				stmt.executeUpdate(); 
 			}
 			catch(SQLException e) {
@@ -292,6 +295,7 @@ public class DataPersona {
 			}
 			finally {
 				try {
+//					if(stmt1!=null)stmt1.close();
 					if(stmt != null) stmt.close();
 					DbConnector.getInstancia().releaseConn();
 				}
